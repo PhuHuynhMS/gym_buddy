@@ -7,7 +7,7 @@ import {
 } from "./githubClient";
 import { cleanupWorkspace, prepareAndMergePullRequest } from "./gitWorkspace";
 import { withRunLock } from "./runLock";
-import { runPlaceholderTest } from "./testRunner";
+import { runAiReview } from "./aiReviewRunner";
 
 export interface PrTestResult {
   repo: string;
@@ -21,6 +21,8 @@ export interface PrTestResult {
 const buildSuccessComment = (
   pr: GitHubPullRequest,
   output: string,
+  provider: string,
+  model: string,
 ): string => {
   return [
     "## PR Test Automation Result",
@@ -29,10 +31,12 @@ const buildSuccessComment = (
     `PR: #${pr.number} - ${pr.title}`,
     `Base branch: ${pr.baseRef}`,
     `Head SHA: ${pr.headSha}`,
+    `AI provider: ${provider}`,
+    `AI model: ${model}`,
     "",
-    "```text",
+    "> AI review only. No code was modified by this automation.",
+    "",
     output,
-    "```",
   ].join("\n");
 };
 
@@ -69,16 +73,21 @@ export const runPrTest = async (
       pr = await getPullRequest(request.repo, request.prNumber);
 
       await prepareAndMergePullRequest(pr);
-      const testResult = await runPlaceholderTest();
+      const testResult = await runAiReview(request.repo, pr);
 
       if (testResult.exitCode !== 0) {
-        throw Errors.INTERNAL("Placeholder test failed.", testResult);
+        throw Errors.INTERNAL("AI review failed.", testResult);
       }
 
       await createPullRequestComment(
         request.repo,
         request.prNumber,
-        buildSuccessComment(pr, testResult.output),
+        buildSuccessComment(
+          pr,
+          testResult.output,
+          testResult.provider,
+          testResult.model,
+        ),
       );
 
       return {

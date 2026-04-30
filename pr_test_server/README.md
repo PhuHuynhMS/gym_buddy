@@ -19,6 +19,12 @@ GITHUB_TOKEN=
 GITHUB_WEBHOOK_SECRET=change_me_to_a_random_secret
 TARGET_REPO_PATH=D:\Projects\Android\gym_buddy
 GITHUB_API_BASE_URL=https://api.github.com
+AI_REVIEW_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen2.5-coder:7b
+AI_REVIEW_MAX_DIFF_CHARS=60000
+AI_REVIEW_MAX_FILE_CHARS=20000
+AI_REVIEW_MAX_FILES=20
 ```
 
 Prefer setting `GITHUB_TOKEN` as an OS environment variable instead of storing a PAT in `.env`.
@@ -66,6 +72,25 @@ reopened
 ```
 
 For supported actions, GitHub receives `202 Accepted` immediately and the PR test run continues in the background. The result is posted back to the pull request as a comment.
+
+## AI Review Runner
+
+The current runner is read-only. It reviews the pull request diff and changed file contents, then posts Markdown output to the pull request. It does not modify code, create files, commit, or push.
+
+Default provider:
+
+```text
+AI_REVIEW_PROVIDER=ollama
+```
+
+Install and run Ollama separately, then pull the configured model:
+
+```powershell
+ollama pull qwen2.5-coder:7b
+ollama serve
+```
+
+The automation run passes if the AI provider returns a review successfully. Findings are advisory only and do not block the pull request.
 
 ## Important Local Repo Note
 
