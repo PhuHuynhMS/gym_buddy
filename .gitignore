@@ -1,3 +1,4 @@
 # Local Codex plugin installs
 .agents/plugins/
 plugins/
+.tmp/
