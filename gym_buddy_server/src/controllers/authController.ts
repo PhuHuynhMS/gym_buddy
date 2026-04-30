@@ -35,7 +35,11 @@ export const register = async (
     }
 
     const token = generateToken(user._id.toString());
-    const registerResponse = authResponseFactory.create(user, token);
+    const registerResponse = authResponseFactory.create(
+      user,
+      token,
+      "Register successful",
+    );
 
     res.status(201).json(registerResponse);
   } catch (error) {
@@ -65,7 +69,11 @@ export const login = async (
     }
 
     const token = generateToken(user._id.toString());
-    const loginResponse = authResponseFactory.create(user, token);
+    const loginResponse = authResponseFactory.create(
+      user,
+      token,
+      "Login successful",
+    );
 
     res.json(loginResponse);
   } catch (error) {

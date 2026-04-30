@@ -27,11 +27,21 @@ export const loginRequestSchema = z.object({
 export type LoginRequest = z.infer<typeof loginRequestSchema>;
 
 // ============ Auth Response Schema ============
-export const authResponseSchema = z.object({
+export const authUserResponseSchema = z.object({
   id: z.string(),
   username: z.string(),
   email: z.email(),
-  token: z.string(),
+});
+
+export const authResponseSchema = z.object({
+  success: z.literal(true),
+  message: z.string(),
+  data: z.object({
+    user: authUserResponseSchema,
+    token: z.string(),
+    tokenType: z.literal("Bearer"),
+    expiresIn: z.string(),
+  }),
 });
 
 export type IAuthResponse = z.infer<typeof authResponseSchema>;
