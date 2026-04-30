@@ -15,9 +15,19 @@ Configure `.env`:
 
 ```text
 PORT=5050
-GITHUB_TOKEN=ghp_your_token_here
+GITHUB_TOKEN=
+GITHUB_WEBHOOK_SECRET=change_me_to_a_random_secret
 TARGET_REPO_PATH=D:\Projects\Android\gym_buddy
 GITHUB_API_BASE_URL=https://api.github.com
+```
+
+Prefer setting `GITHUB_TOKEN` as an OS environment variable instead of storing a PAT in `.env`.
+
+On Windows PowerShell, after setting the user environment variable, open a new terminal before running the server. For the current terminal session, you can inject it explicitly:
+
+```powershell
+$env:GITHUB_TOKEN = [Environment]::GetEnvironmentVariable('GITHUB_TOKEN', 'User')
+npm start
 ```
 
 ## Usage
@@ -29,6 +39,33 @@ Invoke-RestMethod `
   -ContentType 'application/json' `
   -Body '{"repo":"owner/name","prNumber":123}'
 ```
+
+## GitHub Webhook
+
+Expose the local server with a tunnel:
+
+```powershell
+ngrok http 5050
+```
+
+In GitHub repository settings, create a webhook:
+
+```text
+Payload URL: https://your-ngrok-url.ngrok-free.app/webhooks/github
+Content type: application/json
+Secret: same value as GITHUB_WEBHOOK_SECRET
+Events: Pull requests
+```
+
+The server accepts these pull request actions:
+
+```text
+opened
+synchronize
+reopened
+```
+
+For supported actions, GitHub receives `202 Accepted` immediately and the PR test run continues in the background. The result is posted back to the pull request as a comment.
 
 ## Important Local Repo Note
 
