@@ -39,7 +39,7 @@ export const buildAiReviewPrompt = (input: AiReviewInput): string => {
     "- If there are no clear issues, say so clearly.",
     "- Keep the review concise and actionable.",
     "",
-    "Return Markdown in this exact structure:",
+    "Return only the review Markdown in this exact structure:",
     "## AI Review",
     "",
     "### Summary",
@@ -56,6 +56,11 @@ export const buildAiReviewPrompt = (input: AiReviewInput): string => {
     "### Note",
     "AI review only. No code was modified.",
     "",
+    "Do not repeat the raw diff, metadata, or full file contents in your answer.",
+    "Use them only as review context.",
+    "",
+    "BEGIN REVIEW CONTEXT",
+    "",
     "Pull request metadata:",
     `- Repository: ${input.repo}`,
     `- PR: #${input.prNumber} - ${input.prTitle}`,
@@ -70,5 +75,7 @@ export const buildAiReviewPrompt = (input: AiReviewInput): string => {
     "",
     "Changed file contents:",
     formatChangedFiles(input),
+    "",
+    "END REVIEW CONTEXT",
   ].join("\n");
 };
