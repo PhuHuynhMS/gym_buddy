@@ -12,7 +12,7 @@ const router: Router = express.Router();
  * POST /api/v1/auth/register
  * Register a new user
  * Body: { username, email, password }
- * Response: { id, username, email, token }
+ * Response: { success, message, data: { user, token, tokenType, expiresIn } }
  */
 router.post(
   "/register",
@@ -24,7 +24,7 @@ router.post(
  * POST /api/v1/auth/login
  * Login user
  * Body: { email, password }
- * Response: { id, username, email, token }
+ * Response: { success, message, data: { user, token, tokenType, expiresIn } }
  */
 router.post(
   "/login",
