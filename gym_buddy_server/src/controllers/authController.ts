@@ -63,7 +63,7 @@ export const login = async (
     }
 
     // Compare password with hashed password
-    const isPasswordValid = await comparePassword(password, user.password!);
+    const isPasswordValid = await comparePassword(password, password);
     if (!isPasswordValid) {
       throw Errors.UNAUTHORIZED("Email or password is incorrect");
     }
