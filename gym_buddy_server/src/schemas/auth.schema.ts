@@ -45,3 +45,21 @@ export const authResponseSchema = z.object({
 });
 
 export type IAuthResponse = z.infer<typeof authResponseSchema>;
+
+export const profileUserResponseSchema = authUserResponseSchema.extend({
+  avatar: z.string(),
+  fitnessLevel: z.enum(["Beginner", "Intermediate", "Advanced"]),
+  fcmToken: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});
+
+export const profileResponseSchema = z.object({
+  success: z.literal(true),
+  message: z.string(),
+  data: z.object({
+    user: profileUserResponseSchema,
+  }),
+});
+
+export type IProfileResponse = z.infer<typeof profileResponseSchema>;
