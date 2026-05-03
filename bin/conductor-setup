@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+echo "Setting up GymBuddy Conductor workspace..."
+
+if [ -d "$ROOT_DIR/gym_buddy_server" ]; then
+  echo "Installing Node.js dependencies..."
+  (cd "$ROOT_DIR/gym_buddy_server" && npm install)
+fi
+
+if [ -d "$ROOT_DIR/gym_buddy_app" ]; then
+  echo "Installing Flutter dependencies..."
+  (cd "$ROOT_DIR/gym_buddy_app" && flutter pub get)
+
+  if grep -q "build_runner" "$ROOT_DIR/gym_buddy_app/pubspec.yaml"; then
+    echo "Running Flutter code generation..."
+    (cd "$ROOT_DIR/gym_buddy_app" && dart run build_runner build --delete-conflicting-outputs)
+  fi
+fi
+
+echo "Conductor setup complete."

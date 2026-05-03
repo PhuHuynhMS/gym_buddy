@@ -3,3 +3,4 @@
 plugins/
 .tmp/
 docs/
+pr_test_server/

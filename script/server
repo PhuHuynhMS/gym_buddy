@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SERVER_DIR="$ROOT_DIR/gym_buddy_server"
+
+export PORT="${CONDUCTOR_PORT:-${PORT:-5000}}"
+export NODE_ENV="${NODE_ENV:-development}"
+export MONGO_URI="${MONGO_URI:-mongodb://127.0.0.1:27017/gym_buddy}"
+export JWT_SECRET_KEY="${JWT_SECRET_KEY:-replace-with-a-long-random-secret}"
+
+if [ -n "${CONDUCTOR_WORKSPACE_NAME:-}" ] && [ -z "${REDIS_URL:-}" ]; then
+  HASH="$(printf '%s' "$CONDUCTOR_WORKSPACE_NAME" | cksum | cut -d' ' -f1)"
+  REDIS_DB="$((HASH % 16))"
+  export REDIS_URL="redis://localhost:6379/${REDIS_DB}"
+fi
+
+cd "$SERVER_DIR"
+exec npm run dev

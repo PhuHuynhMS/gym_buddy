@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP_DIR="$ROOT_DIR/gym_buddy_app"
+
+DEVICE="${FLUTTER_DEVICE:-${CONDUCTOR_FLUTTER_DEVICE:-}}"
+
+cd "$APP_DIR"
+
+if [ -n "$DEVICE" ]; then
+  exec flutter run -d "$DEVICE"
+fi
+
+exec flutter run

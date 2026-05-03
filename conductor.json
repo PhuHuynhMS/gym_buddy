@@ -1,0 +1,22 @@
+{
+  "scripts": {
+    "setup": "bin/conductor-setup",
+    "run": "script/server",
+    "flutter": "script/flutter-run"
+  },
+  "workspaces": {
+    "server": {
+      "path": "gym_buddy_server",
+      "defaultPort": 5000,
+      "env": {
+        "NODE_ENV": "development",
+        "MONGO_URI": "mongodb://127.0.0.1:27017/gym_buddy",
+        "JWT_SECRET_KEY": "replace-with-a-long-random-secret"
+      }
+    },
+    "flutter": {
+      "path": "gym_buddy_app",
+      "defaultDevice": "emulator"
+    }
+  }
+}
