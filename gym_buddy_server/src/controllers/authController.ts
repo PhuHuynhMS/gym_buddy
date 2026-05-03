@@ -80,3 +80,24 @@ export const login = async (
     next(error);
   }
 };
+
+export const getProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    if (!req.user) {
+      throw Errors.UNAUTHORIZED("Authentication is required");
+    }
+
+    const profileResponse = authResponseFactory.profile(
+      req.user,
+      "Profile fetched successfully",
+    );
+
+    res.json(profileResponse);
+  } catch (error) {
+    next(error);
+  }
+};
