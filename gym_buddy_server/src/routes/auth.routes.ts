@@ -1,5 +1,6 @@
 import express, { Router } from "express";
-import { register, login } from "../controllers/authController";
+import { getProfile, login, register } from "../controllers/authController";
+import { protect } from "../middlewares/auth.middleware";
 import { validateRequest } from "../middlewares/validation.middleware";
 import {
   registerRequestSchema,
@@ -31,5 +32,13 @@ router.post(
   validateRequest(loginRequestSchema),
   login,
 );
+
+/**
+ * GET /api/v1/auth/profile
+ * Fetch the current authenticated user profile
+ * Header: Authorization: Bearer <token>
+ * Response: { success, message, data: { user } }
+ */
+router.get("/profile", protect, getProfile);
 
 export default router;
