@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 ThemeData buildAppTheme() {
-  const seedColor = Color(0xFF13795B);
+  const seedColor = Color(0xFF16A34A);
 
   return ThemeData(
     colorScheme: ColorScheme.fromSeed(
       seedColor: seedColor,
       brightness: Brightness.light,
     ),
-    scaffoldBackgroundColor: const Color(0xFFF7F4EF),
+    scaffoldBackgroundColor: const Color(0xFFFAF7F1),
     fontFamily: 'Roboto',
     useMaterial3: true,
     textTheme: const TextTheme(

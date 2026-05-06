@@ -14,10 +14,8 @@ void main() {
     await pumpAuthApp(tester);
 
     expect(find.text('GymBuddy'), findsOneWidget);
-    expect(
-      find.text('Train with people who actually show up.'),
-      findsOneWidget,
-    );
+    expect(find.text('Find a gym partner nearby.'), findsOneWidget);
+    expect(find.text('Linh + Minh matched'), findsOneWidget);
     expect(find.byKey(const Key('login-submit-button')), findsOneWidget);
   });
 
@@ -78,5 +76,52 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Login form is ready to connect API'), findsOneWidget);
+  });
+
+  testWidgets('requires terms acceptance before register submit', (
+    tester,
+  ) async {
+    await pumpAuthApp(tester);
+
+    await tester.tap(find.text('Register'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Username'),
+      'linh',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Email'),
+      'linh@example.com',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Password'),
+      'secret123',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Confirm password'),
+      'secret123',
+    );
+    final registerButton = find.byKey(const Key('register-submit-button'));
+    await tester.ensureVisible(registerButton);
+    await tester.tap(registerButton);
+    await tester.pump();
+
+    expect(
+      find.text('Accept the terms to create your account'),
+      findsOneWidget,
+    );
+
+    await tester.ensureVisible(
+      find.byKey(const Key('register-terms-checkbox')),
+    );
+    await tester.tap(find.byKey(const Key('register-terms-checkbox')));
+    await tester.pump();
+    await tester.ensureVisible(registerButton);
+    await tester.tap(registerButton);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Register form is ready to connect API'), findsOneWidget);
   });
 }

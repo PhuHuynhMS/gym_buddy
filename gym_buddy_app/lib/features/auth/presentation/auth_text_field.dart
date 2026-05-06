@@ -8,6 +8,8 @@ class AuthTextField extends StatefulWidget {
     this.validator,
     this.keyboardType,
     this.textInputAction,
+    this.autofillHints,
+    this.onFieldSubmitted,
     this.obscureText = false,
     super.key,
   });
@@ -18,6 +20,8 @@ class AuthTextField extends StatefulWidget {
   final String? Function(String?)? validator;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
+  final Iterable<String>? autofillHints;
+  final ValueChanged<String>? onFieldSubmitted;
   final bool obscureText;
 
   @override
@@ -34,8 +38,11 @@ class _AuthTextFieldState extends State<AuthTextField> {
       validator: widget.validator,
       keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,
+      autofillHints: widget.autofillHints,
+      onFieldSubmitted: widget.onFieldSubmitted,
       obscureText: _obscured,
       autocorrect: !widget.obscureText,
+      enableSuggestions: !widget.obscureText,
       decoration: InputDecoration(
         labelText: widget.label,
         prefixIcon: Icon(widget.icon, size: 21),

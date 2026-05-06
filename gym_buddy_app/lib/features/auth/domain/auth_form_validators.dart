@@ -7,6 +7,9 @@ class AuthFormValidators {
     if (trimmed.length < 3) {
       return 'Username must be at least 3 characters';
     }
+    if (trimmed.length > 30) {
+      return 'Username must not exceed 30 characters';
+    }
     return null;
   }
 
@@ -30,6 +33,9 @@ class AuthFormValidators {
     if (password.length < 6) {
       return 'Password must be at least 6 characters';
     }
+    if (password.length > 50) {
+      return 'Password must not exceed 50 characters';
+    }
     return null;
   }
 
@@ -40,6 +46,13 @@ class AuthFormValidators {
     }
     if (confirmation != password) {
       return 'Passwords do not match';
+    }
+    return null;
+  }
+
+  static String? acceptedTerms(bool? value) {
+    if (value != true) {
+      return 'Accept the terms to create your account';
     }
     return null;
   }

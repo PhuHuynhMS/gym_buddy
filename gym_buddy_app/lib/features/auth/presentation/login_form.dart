@@ -57,6 +57,7 @@ class LoginFormState extends State<LoginForm> {
             icon: Icons.mail_outline,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
+            autofillHints: const [AutofillHints.email],
             validator: AuthFormValidators.email,
           ),
           const SizedBox(height: 14),
@@ -66,17 +67,11 @@ class LoginFormState extends State<LoginForm> {
             icon: Icons.lock_outline,
             obscureText: true,
             textInputAction: TextInputAction.done,
+            autofillHints: const [AutofillHints.password],
+            onFieldSubmitted: (_) => widget.isSubmitting ? null : submit(),
             validator: AuthFormValidators.password,
           ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: widget.isSubmitting ? null : () {},
-              child: const Text('Forgot password?'),
-            ),
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           FilledButton.icon(
             key: const Key('login-submit-button'),
             onPressed: widget.isSubmitting ? null : submit,

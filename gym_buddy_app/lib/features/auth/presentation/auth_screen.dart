@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gym_buddy_app/features/auth/application/auth_form_controller.dart';
 import 'package:gym_buddy_app/features/auth/domain/auth_mode.dart';
+import 'package:gym_buddy_app/features/auth/presentation/brand_mark.dart';
 import 'package:gym_buddy_app/features/auth/presentation/login_form.dart';
 import 'package:gym_buddy_app/features/auth/presentation/register_form.dart';
 
@@ -145,6 +146,8 @@ class _HeroPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     const background = Color(0xFF173B30);
     const accent = Color(0xFFF2B84B);
+    const heart = Color(0xFFF05A5A);
+    const activeGreen = Color(0xFF16A34A);
     final textTheme = Theme.of(context).textTheme;
 
     return DecoratedBox(
@@ -166,10 +169,11 @@ class _HeroPanel extends StatelessWidget {
                   ),
                   child: const Padding(
                     padding: EdgeInsets.all(10),
-                    child: Icon(
-                      Icons.fitness_center,
-                      color: Colors.white,
-                      size: 24,
+                    child: BrandMark(
+                      size: 30,
+                      foregroundColor: heart,
+                      accentColor: accent,
+                      connectionColor: activeGreen,
                     ),
                   ),
                 ),
@@ -206,15 +210,15 @@ class _HeroPanel extends StatelessWidget {
             const SizedBox(height: 28),
             Text(
               mode == AuthMode.login
-                  ? 'Train with people who actually show up.'
-                  : 'Find a partner before your next session.',
+                  ? 'Find a gym partner nearby.'
+                  : 'Meet someone who matches your training rhythm.',
               style: textTheme.headlineLarge?.copyWith(color: Colors.white),
             ),
             const SizedBox(height: 12),
             Text(
               mode == AuthMode.login
-                  ? 'Jump back into nearby gym matches, check-ins, and workout chats.'
-                  : 'Create your profile now. API connection comes next, but the flow is ready.',
+                  ? 'Match by location, schedule, and training goal before you head out.'
+                  : 'Build a profile for nearby workouts, check-ins, and real training connections.',
               style: textTheme.bodyMedium?.copyWith(
                 color: Colors.white.withValues(alpha: 0.78),
               ),
@@ -224,22 +228,129 @@ class _HeroPanel extends StatelessWidget {
               children: [
                 Expanded(
                   child: _MetricPill(
-                    value: '2-5km',
-                    label: 'nearby radius',
+                    value: '24',
+                    label: 'nearby today',
                     icon: Icons.location_on_outlined,
                   ),
                 ),
                 SizedBox(width: 10),
                 Expanded(
                   child: _MetricPill(
-                    value: 'Live',
-                    label: 'buddy matching',
-                    icon: Icons.groups_2_outlined,
+                    value: '8',
+                    label: 'checked in',
+                    icon: Icons.favorite_outline,
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            const _MatchPreview(),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MatchPreview extends StatelessWidget {
+  const _MatchPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            const _AvatarPair(),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Linh + Minh matched',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '1.8km away · Push day · 7:00 PM',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.72),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, color: Color(0xFFF2B84B)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarPair extends StatelessWidget {
+  const _AvatarPair();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 54,
+      height: 34,
+      child: Stack(
+        children: [
+          _AvatarBubble(
+            color: const Color(0xFF60A5FA),
+            icon: Icons.male,
+            alignment: Alignment.centerLeft,
+          ),
+          _AvatarBubble(
+            color: const Color(0xFFF9A8D4),
+            icon: Icons.female,
+            alignment: Alignment.centerRight,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AvatarBubble extends StatelessWidget {
+  const _AvatarBubble({
+    required this.color,
+    required this.icon,
+    required this.alignment,
+  });
+
+  final Color color;
+  final IconData icon;
+  final Alignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2),
+        ),
+        child: SizedBox.square(
+          dimension: 34,
+          child: Icon(icon, color: Colors.white, size: 18),
         ),
       ),
     );
