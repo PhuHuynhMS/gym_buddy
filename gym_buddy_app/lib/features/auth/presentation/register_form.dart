@@ -10,7 +10,12 @@ class RegisterForm extends StatefulWidget {
   });
 
   final bool isSubmitting;
-  final Future<void> Function() onSubmit;
+  final Future<void> Function({
+    required String username,
+    required String email,
+    required String password,
+  })
+  onSubmit;
 
   @override
   State<RegisterForm> createState() => RegisterFormState();
@@ -37,7 +42,11 @@ class RegisterFormState extends State<RegisterForm> {
     if (!formKey.currentState!.validate()) {
       return;
     }
-    await widget.onSubmit();
+    await widget.onSubmit(
+      username: usernameController.text,
+      email: emailController.text,
+      password: passwordController.text,
+    );
   }
 
   @override

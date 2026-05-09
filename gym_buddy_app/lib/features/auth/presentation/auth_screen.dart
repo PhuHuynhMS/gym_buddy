@@ -1,24 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:gym_buddy_app/core/errors/app_failure.dart';
 import 'package:gym_buddy_app/features/auth/application/auth_form_controller.dart';
 import 'package:gym_buddy_app/features/auth/domain/auth_mode.dart';
+import 'package:gym_buddy_app/features/auth/domain/entities/auth_next_action.dart';
+import 'package:gym_buddy_app/features/auth/domain/entities/auth_ui_model.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/login_use_case.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/register_use_case.dart';
 import 'package:gym_buddy_app/features/auth/presentation/brand_mark.dart';
 import 'package:gym_buddy_app/features/auth/presentation/login_form.dart';
 import 'package:gym_buddy_app/features/auth/presentation/register_form.dart';
+import 'package:gym_buddy_app/features/home/home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+  const AuthScreen({
+    required this.loginUseCase,
+    required this.registerUseCase,
+    super.key,
+  });
+
+  final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final _controller = AuthFormController();
+  late final AuthFormController _controller;
   AuthMode _mode = AuthMode.login;
 
   @override
   void initState() {
     super.initState();
+    _controller = AuthFormController(
+      loginUseCase: widget.loginUseCase,
+      registerUseCase: widget.registerUseCase,
+    );
     _controller.addListener(_handleControllerChange);
   }
 
@@ -45,19 +62,62 @@ class _AuthScreenState extends State<AuthScreen> {
     });
   }
 
-  Future<void> _submit() async {
-    final message = await _controller.submit(_mode);
+  Future<void> _submitLogin({
+    required String email,
+    required String password,
+  }) async {
+    await _submit(() => _controller.login(email: email, password: password));
+  }
+
+  Future<void> _submitRegister({
+    required String username,
+    required String email,
+    required String password,
+  }) async {
+    await _submit(
+      () => _controller.register(
+        username: username,
+        email: email,
+        password: password,
+      ),
+    );
+  }
+
+  Future<void> _submit(Future<AuthUiModel> Function() action) async {
+    late final AuthUiModel auth;
+    try {
+      auth = await action();
+    } on AppFailure catch (error) {
+      if (!mounted) {
+        return;
+      }
+      _showSnackBar(message: error.message, isError: true);
+      return;
+    }
+
     if (!mounted) {
       return;
     }
 
+    _showSnackBar(message: auth.message);
+    if (auth.nextAction == AuthNextAction.goHome) {
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => HomeScreen(auth: auth)),
+      );
+    }
+  }
+
+  void _showSnackBar({required String message, bool isError = false}) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.check_circle_outline, color: Colors.white),
+              Icon(
+                isError ? Icons.error_outline : Icons.check_circle_outline,
+                color: Colors.white,
+              ),
               const SizedBox(width: 12),
               Expanded(child: Text(message)),
             ],
@@ -114,12 +174,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                   ? LoginForm(
                                       key: const ValueKey(AuthMode.login),
                                       isSubmitting: _controller.isSubmitting,
-                                      onSubmit: _submit,
+                                      onSubmit: _submitLogin,
                                     )
                                   : RegisterForm(
                                       key: const ValueKey(AuthMode.register),
                                       isSubmitting: _controller.isSubmitting,
-                                      onSubmit: _submit,
+                                      onSubmit: _submitRegister,
                                     ),
                             ),
                           ),

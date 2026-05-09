@@ -10,7 +10,8 @@ class LoginForm extends StatefulWidget {
   });
 
   final bool isSubmitting;
-  final Future<void> Function() onSubmit;
+  final Future<void> Function({required String email, required String password})
+  onSubmit;
 
   @override
   State<LoginForm> createState() => LoginFormState();
@@ -32,7 +33,10 @@ class LoginFormState extends State<LoginForm> {
     if (!formKey.currentState!.validate()) {
       return;
     }
-    await widget.onSubmit();
+    await widget.onSubmit(
+      email: emailController.text,
+      password: passwordController.text,
+    );
   }
 
   @override

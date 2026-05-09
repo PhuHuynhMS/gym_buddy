@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_buddy_app/app/gym_buddy_app.dart';
+import 'package:gym_buddy_app/features/auth/domain/entities/auth_next_action.dart';
+import 'package:gym_buddy_app/features/auth/domain/entities/auth_ui_model.dart';
+import 'package:gym_buddy_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/login_use_case.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/register_use_case.dart';
 
 Future<void> pumpAuthApp(WidgetTester tester) async {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
   await binding.setSurfaceSize(const Size(430, 900));
   addTearDown(() => binding.setSurfaceSize(null));
-  await tester.pumpWidget(const GymBuddyApp());
+  final repository = _FakeAuthRepository();
+  await tester.pumpWidget(
+    GymBuddyApp(
+      loginUseCase: LoginUseCase(repository),
+      registerUseCase: RegisterUseCase(repository),
+    ),
+  );
 }
 
 void main() {
@@ -58,7 +69,7 @@ void main() {
     expect(find.byTooltip('Hide password'), findsOneWidget);
   });
 
-  testWidgets('shows snackbar after a valid login submit', (tester) async {
+  testWidgets('navigates home after a valid login submit', (tester) async {
     await pumpAuthApp(tester);
 
     await tester.enterText(
@@ -72,10 +83,11 @@ void main() {
     final loginButton = find.byKey(const Key('login-submit-button'));
     await tester.ensureVisible(loginButton);
     await tester.tap(loginButton);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Login form is ready to connect API'), findsOneWidget);
+    expect(find.text('Welcome, Test User'), findsOneWidget);
+    expect(find.text('tester@example.com'), findsOneWidget);
+    expect(find.text('Login successful'), findsOneWidget);
   });
 
   testWidgets('requires terms acceptance before register submit', (
@@ -119,9 +131,39 @@ void main() {
     await tester.pump();
     await tester.ensureVisible(registerButton);
     await tester.tap(registerButton);
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Register form is ready to connect API'), findsOneWidget);
+    expect(find.text('Welcome, linh'), findsOneWidget);
+    expect(find.text('linh@example.com'), findsOneWidget);
+    expect(find.text('Register successful'), findsOneWidget);
   });
+}
+
+class _FakeAuthRepository implements AuthRepository {
+  @override
+  Future<AuthUiModel> login({
+    required String email,
+    required String password,
+  }) async {
+    return AuthUiModel(
+      message: 'Login successful',
+      displayName: 'Test User',
+      email: email,
+      nextAction: AuthNextAction.goHome,
+    );
+  }
+
+  @override
+  Future<AuthUiModel> register({
+    required String username,
+    required String email,
+    required String password,
+  }) async {
+    return AuthUiModel(
+      message: 'Register successful',
+      displayName: username,
+      email: email,
+      nextAction: AuthNextAction.goHome,
+    );
+  }
 }
