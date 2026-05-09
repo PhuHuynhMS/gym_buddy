@@ -4,8 +4,12 @@ import 'package:gym_buddy_app/features/auth/application/auth_form_controller.dar
 import 'package:gym_buddy_app/features/auth/domain/auth_mode.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_next_action.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_ui_model.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/list_sessions_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/login_use_case.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/logout_all_use_case.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/logout_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/register_use_case.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/revoke_session_use_case.dart';
 import 'package:gym_buddy_app/features/auth/presentation/brand_mark.dart';
 import 'package:gym_buddy_app/features/auth/presentation/login_form.dart';
 import 'package:gym_buddy_app/features/auth/presentation/register_form.dart';
@@ -15,11 +19,19 @@ class AuthScreen extends StatefulWidget {
   const AuthScreen({
     required this.loginUseCase,
     required this.registerUseCase,
+    required this.logoutUseCase,
+    required this.logoutAllUseCase,
+    required this.listSessionsUseCase,
+    required this.revokeSessionUseCase,
     super.key,
   });
 
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
+  final LogoutUseCase logoutUseCase;
+  final LogoutAllUseCase logoutAllUseCase;
+  final ListSessionsUseCase listSessionsUseCase;
+  final RevokeSessionUseCase revokeSessionUseCase;
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -102,7 +114,15 @@ class _AuthScreenState extends State<AuthScreen> {
     _showSnackBar(message: auth.message);
     if (auth.nextAction == AuthNextAction.goHome) {
       await Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => HomeScreen(auth: auth)),
+        MaterialPageRoute<void>(
+          builder: (_) => HomeScreen(
+            auth: auth,
+            logoutUseCase: widget.logoutUseCase,
+            logoutAllUseCase: widget.logoutAllUseCase,
+            listSessionsUseCase: widget.listSessionsUseCase,
+            revokeSessionUseCase: widget.revokeSessionUseCase,
+          ),
+        ),
       );
     }
   }

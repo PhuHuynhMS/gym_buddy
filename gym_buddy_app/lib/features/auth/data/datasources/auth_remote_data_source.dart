@@ -1,12 +1,20 @@
 import 'package:dio/dio.dart';
+import 'package:gym_buddy_app/core/device/device_info_provider.dart';
 import 'package:gym_buddy_app/core/errors/app_failure.dart';
 import 'package:gym_buddy_app/core/network/api_error_parser.dart';
 import 'package:gym_buddy_app/features/auth/data/dto/auth_response_dto.dart';
+import 'package:gym_buddy_app/features/auth/data/dto/session_dto.dart';
+import 'package:gym_buddy_app/features/auth/data/dto/token_response_dto.dart';
 
 class AuthRemoteDataSource {
-  const AuthRemoteDataSource({required Dio dio}) : _dio = dio;
+  const AuthRemoteDataSource({
+    required Dio dio,
+    required DeviceInfoProvider deviceInfoProvider,
+  }) : _dio = dio,
+       _deviceInfoProvider = deviceInfoProvider;
 
   final Dio _dio;
+  final DeviceInfoProvider _deviceInfoProvider;
 
   Future<AuthResponseDto> login({
     required String email,
@@ -33,8 +41,13 @@ class AuthRemoteDataSource {
     required String path,
     required Map<String, String> body,
   }) async {
+    final headers = await _deviceInfoProvider.authHeaders();
     try {
-      final response = await _dio.post<Map<String, dynamic>>(path, data: body);
+      final response = await _dio.post<Map<String, dynamic>>(
+        path,
+        data: body,
+        options: Options(headers: headers),
+      );
       final data = response.data;
       if (data == null) {
         throw const AppFailure('The server returned an empty response.');
@@ -50,6 +63,81 @@ class AuthRemoteDataSource {
       throw AppFailure(_fallbackMessageFor(error));
     } on FormatException catch (error) {
       throw AppFailure(error.message);
+    }
+  }
+
+  Future<TokenResponseDto> refresh() async {
+    return _requestToken(
+      () => _dio.post<Map<String, dynamic>>('/auth/refresh'),
+    );
+  }
+
+  Future<void> logout() async {
+    await _requestVoid(() => _dio.post<Map<String, dynamic>>('/auth/logout'));
+  }
+
+  Future<void> logoutAll() async {
+    await _requestVoid(
+      () => _dio.post<Map<String, dynamic>>('/auth/logout-all'),
+    );
+  }
+
+  Future<List<SessionDto>> listSessions() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>('/auth/sessions');
+      final data = response.data;
+      if (data == null) {
+        throw const AppFailure('The server returned an empty response.');
+      }
+
+      return SessionDto.listFromJson(data);
+    } on DioException catch (error) {
+      throw AppFailure(
+        parseApiErrorMessage(error.response?.data) ??
+            _fallbackMessageFor(error),
+      );
+    } on FormatException catch (error) {
+      throw AppFailure(error.message);
+    }
+  }
+
+  Future<void> revokeSession(String sessionId) async {
+    await _requestVoid(
+      () => _dio.delete<Map<String, dynamic>>('/auth/sessions/$sessionId'),
+    );
+  }
+
+  Future<TokenResponseDto> _requestToken(
+    Future<Response<Map<String, dynamic>>> Function() request,
+  ) async {
+    try {
+      final response = await request();
+      final data = response.data;
+      if (data == null) {
+        throw const AppFailure('The server returned an empty response.');
+      }
+
+      return TokenResponseDto.fromJson(data);
+    } on DioException catch (error) {
+      throw AppFailure(
+        parseApiErrorMessage(error.response?.data) ??
+            _fallbackMessageFor(error),
+      );
+    } on FormatException catch (error) {
+      throw AppFailure(error.message);
+    }
+  }
+
+  Future<void> _requestVoid(
+    Future<Response<Map<String, dynamic>>> Function() request,
+  ) async {
+    try {
+      await request();
+    } on DioException catch (error) {
+      throw AppFailure(
+        parseApiErrorMessage(error.response?.data) ??
+            _fallbackMessageFor(error),
+      );
     }
   }
 

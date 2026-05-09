@@ -2,16 +2,18 @@ class AuthResponseDto {
   const AuthResponseDto({
     required this.message,
     required this.user,
-    required this.token,
+    required this.accessToken,
+    required this.accessTokenExpiresAt,
     required this.tokenType,
-    required this.expiresIn,
+    required this.sessionId,
   });
 
   final String message;
   final AuthUserDto user;
-  final String token;
+  final String accessToken;
+  final DateTime accessTokenExpiresAt;
   final String tokenType;
-  final String expiresIn;
+  final String sessionId;
 
   factory AuthResponseDto.fromJson(Map<String, dynamic> json) {
     final message = _readString(json, 'message');
@@ -28,9 +30,10 @@ class AuthResponseDto {
     return AuthResponseDto(
       message: message,
       user: AuthUserDto.fromJson(user),
-      token: _readString(data, 'token'),
+      accessToken: _readString(data, 'accessToken'),
+      accessTokenExpiresAt: _readDateTime(data, 'accessTokenExpiresAt'),
       tokenType: _readString(data, 'tokenType'),
-      expiresIn: _readString(data, 'expiresIn'),
+      sessionId: _readString(data, 'sessionId'),
     );
   }
 
@@ -41,6 +44,16 @@ class AuthResponseDto {
     }
 
     throw FormatException('$key is required.');
+  }
+
+  static DateTime _readDateTime(Map<String, dynamic> json, String key) {
+    final value = _readString(json, key);
+    final parsed = DateTime.tryParse(value);
+    if (parsed == null) {
+      throw FormatException('$key must be a valid ISO date.');
+    }
+
+    return parsed;
   }
 }
 

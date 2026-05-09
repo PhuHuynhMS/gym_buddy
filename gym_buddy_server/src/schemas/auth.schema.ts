@@ -38,13 +38,27 @@ export const authResponseSchema = z.object({
   message: z.string(),
   data: z.object({
     user: authUserResponseSchema,
-    token: z.string(),
+    accessToken: z.string(),
+    accessTokenExpiresAt: z.iso.datetime(),
     tokenType: z.literal("Bearer"),
-    expiresIn: z.string(),
+    sessionId: z.string(),
   }),
 });
 
 export type IAuthResponse = z.infer<typeof authResponseSchema>;
+
+export const tokenResponseSchema = z.object({
+  success: z.literal(true),
+  message: z.string(),
+  data: z.object({
+    accessToken: z.string(),
+    accessTokenExpiresAt: z.iso.datetime(),
+    tokenType: z.literal("Bearer"),
+    sessionId: z.string(),
+  }),
+});
+
+export type ITokenResponse = z.infer<typeof tokenResponseSchema>;
 
 export const profileUserResponseSchema = authUserResponseSchema.extend({
   avatar: z.string(),
@@ -63,3 +77,24 @@ export const profileResponseSchema = z.object({
 });
 
 export type IProfileResponse = z.infer<typeof profileResponseSchema>;
+
+export const sessionResponseSchema = z.object({
+  id: z.string(),
+  deviceName: z.string(),
+  platform: z.string(),
+  ipAddress: z.string(),
+  userAgent: z.string(),
+  lastUsedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime(),
+  expiresAt: z.iso.datetime(),
+});
+
+export const sessionsResponseSchema = z.object({
+  success: z.literal(true),
+  message: z.string(),
+  data: z.object({
+    sessions: z.array(sessionResponseSchema),
+  }),
+});
+
+export type ISessionsResponse = z.infer<typeof sessionsResponseSchema>;

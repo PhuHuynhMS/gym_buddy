@@ -1,10 +1,12 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import AuthSession from "../models/AuthSession";
 import User from "../models/User";
 import { Errors } from "../utils/AppError";
 
 interface JwtPayload {
   id?: string;
+  sessionId?: string;
 }
 
 export const protect = async (
@@ -34,6 +36,19 @@ export const protect = async (
     const decoded = jwt.verify(token, secretKey) as JwtPayload;
     if (!decoded.id) {
       throw Errors.UNAUTHORIZED("Token is invalid");
+    }
+    if (decoded.sessionId) {
+      req.sessionId = decoded.sessionId;
+      if (decoded.sessionId !== "legacy-session") {
+        const activeSession = await AuthSession.findOne({
+          _id: decoded.sessionId,
+          revokedAt: { $exists: false },
+          expiresAt: { $gt: new Date() },
+        });
+        if (!activeSession) {
+          throw Errors.UNAUTHORIZED("Session is no longer active");
+        }
+      }
     }
 
     const user = await User.findById(decoded.id).select("-password");

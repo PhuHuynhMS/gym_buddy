@@ -6,10 +6,7 @@ class LoginUseCase {
 
   final AuthRepository _repository;
 
-  Future<AuthUiModel> call({
-    required String email,
-    required String password,
-  }) {
+  Future<AuthUiModel> call({required String email, required String password}) {
     return _repository.login(email: email, password: password);
   }
 }

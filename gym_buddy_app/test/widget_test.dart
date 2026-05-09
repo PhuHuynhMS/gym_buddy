@@ -2,20 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_buddy_app/app/gym_buddy_app.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_next_action.dart';
+import 'package:gym_buddy_app/features/auth/domain/entities/auth_session_ui_model.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_ui_model.dart';
 import 'package:gym_buddy_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:gym_buddy_app/features/auth/domain/repositories/session_repository.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/list_sessions_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/login_use_case.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/logout_all_use_case.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/logout_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/register_use_case.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/revoke_session_use_case.dart';
 
 Future<void> pumpAuthApp(WidgetTester tester) async {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
   await binding.setSurfaceSize(const Size(430, 900));
   addTearDown(() => binding.setSurfaceSize(null));
   final repository = _FakeAuthRepository();
+  final sessionRepository = _FakeSessionRepository();
   await tester.pumpWidget(
     GymBuddyApp(
       loginUseCase: LoginUseCase(repository),
       registerUseCase: RegisterUseCase(repository),
+      logoutUseCase: LogoutUseCase(sessionRepository),
+      logoutAllUseCase: LogoutAllUseCase(sessionRepository),
+      listSessionsUseCase: ListSessionsUseCase(sessionRepository),
+      revokeSessionUseCase: RevokeSessionUseCase(sessionRepository),
     ),
   );
 }
@@ -87,7 +98,7 @@ void main() {
 
     expect(find.text('Welcome, Test User'), findsOneWidget);
     expect(find.text('tester@example.com'), findsOneWidget);
-    expect(find.text('Login successful'), findsOneWidget);
+    expect(find.text('Login successful'), findsWidgets);
   });
 
   testWidgets('requires terms acceptance before register submit', (
@@ -135,7 +146,7 @@ void main() {
 
     expect(find.text('Welcome, linh'), findsOneWidget);
     expect(find.text('linh@example.com'), findsOneWidget);
-    expect(find.text('Register successful'), findsOneWidget);
+    expect(find.text('Register successful'), findsWidgets);
   });
 }
 
@@ -166,4 +177,32 @@ class _FakeAuthRepository implements AuthRepository {
       nextAction: AuthNextAction.goHome,
     );
   }
+}
+
+class _FakeSessionRepository implements SessionRepository {
+  @override
+  Future<List<AuthSessionUiModel>> listSessions() async {
+    return [
+      AuthSessionUiModel(
+        id: 'session-1',
+        deviceName: 'Test Device',
+        platform: 'android',
+        lastUsedAt: DateTime(2026),
+        createdAt: DateTime(2026),
+        isCurrentDevice: true,
+      ),
+    ];
+  }
+
+  @override
+  Future<void> logout() async {}
+
+  @override
+  Future<void> logoutAll() async {}
+
+  @override
+  Future<void> refresh() async {}
+
+  @override
+  Future<void> revokeSession(String sessionId) async {}
 }

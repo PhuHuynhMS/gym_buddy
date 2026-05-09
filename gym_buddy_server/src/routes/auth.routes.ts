@@ -1,5 +1,14 @@
 import express, { Router } from "express";
-import { getProfile, login, register } from "../controllers/authController";
+import {
+  getProfile,
+  listSessions,
+  login,
+  logout,
+  logoutAll,
+  refresh,
+  register,
+  revokeSessionById,
+} from "../controllers/authController";
 import { protect } from "../middlewares/auth.middleware";
 import { validateRequest } from "../middlewares/validation.middleware";
 import {
@@ -13,7 +22,7 @@ const router: Router = express.Router();
  * POST /api/v1/auth/register
  * Register a new user
  * Body: { username, email, password }
- * Response: { success, message, data: { user, token, tokenType, expiresIn } }
+ * Response: { success, message, data: { user, accessToken, accessTokenExpiresAt, tokenType, sessionId } }
  */
 router.post(
   "/register",
@@ -25,13 +34,19 @@ router.post(
  * POST /api/v1/auth/login
  * Login user
  * Body: { email, password }
- * Response: { success, message, data: { user, token, tokenType, expiresIn } }
+ * Response: { success, message, data: { user, accessToken, accessTokenExpiresAt, tokenType, sessionId } }
  */
 router.post(
   "/login",
   validateRequest(loginRequestSchema),
   login,
 );
+
+router.post("/refresh", refresh);
+router.post("/logout", protect, logout);
+router.post("/logout-all", protect, logoutAll);
+router.get("/sessions", protect, listSessions);
+router.delete("/sessions/:id", protect, revokeSessionById);
 
 /**
  * GET /api/v1/auth/profile

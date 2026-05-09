@@ -2,13 +2,23 @@ import {
   authResponseSchema,
   IAuthResponse,
   IProfileResponse,
+  ISessionsResponse,
+  ITokenResponse,
   profileResponseSchema,
+  sessionsResponseSchema,
+  tokenResponseSchema,
 } from "../../schemas/auth.schema";
 import { IUser } from "../../models/User";
-import { AUTH_TOKEN_EXPIRES_IN } from "../../utils/generateToken";
+import { IAuthSession } from "../../models/AuthSession";
 
 export const authResponseFactory = {
-  create(user: IUser, token: string, message: string): IAuthResponse {
+  create(
+    user: IUser,
+    accessToken: string,
+    accessTokenExpiresAt: Date,
+    sessionId: string,
+    message: string,
+  ): IAuthResponse {
     return authResponseSchema.parse({
       success: true,
       message,
@@ -18,9 +28,28 @@ export const authResponseFactory = {
           username: user.username,
           email: user.email,
         },
-        token,
+        accessToken,
+        accessTokenExpiresAt: accessTokenExpiresAt.toISOString(),
         tokenType: "Bearer",
-        expiresIn: AUTH_TOKEN_EXPIRES_IN,
+        sessionId,
+      },
+    });
+  },
+
+  token(
+    accessToken: string,
+    accessTokenExpiresAt: Date,
+    sessionId: string,
+    message: string,
+  ): ITokenResponse {
+    return tokenResponseSchema.parse({
+      success: true,
+      message,
+      data: {
+        accessToken,
+        accessTokenExpiresAt: accessTokenExpiresAt.toISOString(),
+        tokenType: "Bearer",
+        sessionId,
       },
     });
   },
@@ -40,6 +69,25 @@ export const authResponseFactory = {
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
         },
+      },
+    });
+  },
+
+  sessions(sessions: IAuthSession[], message: string): ISessionsResponse {
+    return sessionsResponseSchema.parse({
+      success: true,
+      message,
+      data: {
+        sessions: sessions.map((session) => ({
+          id: session._id.toString(),
+          deviceName: session.deviceName,
+          platform: session.platform,
+          ipAddress: session.ipAddress,
+          userAgent: session.userAgent,
+          lastUsedAt: session.lastUsedAt.toISOString(),
+          createdAt: session.createdAt.toISOString(),
+          expiresAt: session.expiresAt.toISOString(),
+        })),
       },
     });
   },
