@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_buddy_app/app/gym_buddy_app.dart';
+import 'package:gym_buddy_app/core/session/secure_session_store.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_next_action.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_session_ui_model.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_ui_model.dart';
 import 'package:gym_buddy_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_buddy_app/features/auth/domain/repositories/session_repository.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/bootstrap_auth_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/list_sessions_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/login_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/logout_all_use_case.dart';
@@ -21,6 +23,7 @@ Future<void> pumpAuthApp(WidgetTester tester) async {
   final sessionRepository = _FakeSessionRepository();
   await tester.pumpWidget(
     GymBuddyApp(
+      bootstrapAuthUseCase: _FakeBootstrapAuthUseCase(),
       loginUseCase: LoginUseCase(repository),
       registerUseCase: RegisterUseCase(repository),
       logoutUseCase: LogoutUseCase(sessionRepository),
@@ -29,6 +32,7 @@ Future<void> pumpAuthApp(WidgetTester tester) async {
       revokeSessionUseCase: RevokeSessionUseCase(sessionRepository),
     ),
   );
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -176,6 +180,30 @@ class _FakeAuthRepository implements AuthRepository {
       email: email,
       nextAction: AuthNextAction.goHome,
     );
+  }
+
+  @override
+  Future<AuthUiModel> profile() async {
+    return const AuthUiModel(
+      message: 'Profile fetched successfully',
+      displayName: 'Test User',
+      email: 'tester@example.com',
+      nextAction: AuthNextAction.goHome,
+    );
+  }
+}
+
+class _FakeBootstrapAuthUseCase extends BootstrapAuthUseCase {
+  _FakeBootstrapAuthUseCase()
+    : super(
+        sessionStore: const SecureSessionStore(),
+        sessionRepository: _FakeSessionRepository(),
+        authRepository: _FakeAuthRepository(),
+      );
+
+  @override
+  Future<BootstrapAuthResult> call() async {
+    return const BootstrapUnauthenticated();
   }
 }
 

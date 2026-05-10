@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:gym_buddy_app/app/app_theme.dart';
+import 'package:gym_buddy_app/app/bootstrap_gate.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/bootstrap_auth_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/list_sessions_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/login_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/logout_all_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/logout_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/register_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/revoke_session_use_case.dart';
-import 'package:gym_buddy_app/features/auth/presentation/auth_screen.dart';
 
 class GymBuddyApp extends StatelessWidget {
   const GymBuddyApp({
+    required this.bootstrapAuthUseCase,
     required this.loginUseCase,
     required this.registerUseCase,
     required this.logoutUseCase,
@@ -19,6 +21,7 @@ class GymBuddyApp extends StatelessWidget {
     super.key,
   });
 
+  final BootstrapAuthUseCase bootstrapAuthUseCase;
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
   final LogoutUseCase logoutUseCase;
@@ -32,7 +35,8 @@ class GymBuddyApp extends StatelessWidget {
       title: 'GymBuddy Connect',
       debugShowCheckedModeBanner: false,
       theme: buildAppTheme(),
-      home: AuthScreen(
+      home: BootstrapGate(
+        bootstrapAuthUseCase: bootstrapAuthUseCase,
         loginUseCase: loginUseCase,
         registerUseCase: registerUseCase,
         logoutUseCase: logoutUseCase,

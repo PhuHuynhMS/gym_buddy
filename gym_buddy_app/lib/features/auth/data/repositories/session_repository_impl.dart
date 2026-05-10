@@ -31,14 +31,20 @@ class SessionRepositoryImpl implements SessionRepository {
 
   @override
   Future<void> logout() async {
-    await _remoteDataSource.logout();
-    await clearLocalSession();
+    try {
+      await _remoteDataSource.logout();
+    } finally {
+      await clearLocalSession();
+    }
   }
 
   @override
   Future<void> logoutAll() async {
-    await _remoteDataSource.logoutAll();
-    await clearLocalSession();
+    try {
+      await _remoteDataSource.logoutAll();
+    } finally {
+      await clearLocalSession();
+    }
   }
 
   @override

@@ -12,6 +12,7 @@ import 'package:gym_buddy_app/features/auth/data/mappers/auth_ui_model_mapper.da
 import 'package:gym_buddy_app/features/auth/data/mappers/session_mapper.dart';
 import 'package:gym_buddy_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:gym_buddy_app/features/auth/data/repositories/session_repository_impl.dart';
+import 'package:gym_buddy_app/features/auth/domain/usecases/bootstrap_auth_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/list_sessions_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/login_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/logout_all_use_case.dart';
@@ -52,6 +53,11 @@ Future<void> main() async {
 
   runApp(
     GymBuddyApp(
+      bootstrapAuthUseCase: BootstrapAuthUseCase(
+        sessionStore: sessionStore,
+        sessionRepository: sessionRepository,
+        authRepository: repository,
+      ),
       loginUseCase: LoginUseCase(repository),
       registerUseCase: RegisterUseCase(repository),
       logoutUseCase: LogoutUseCase(sessionRepository),

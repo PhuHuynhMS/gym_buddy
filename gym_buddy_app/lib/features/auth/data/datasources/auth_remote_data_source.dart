@@ -3,6 +3,7 @@ import 'package:gym_buddy_app/core/device/device_info_provider.dart';
 import 'package:gym_buddy_app/core/errors/app_failure.dart';
 import 'package:gym_buddy_app/core/network/api_error_parser.dart';
 import 'package:gym_buddy_app/features/auth/data/dto/auth_response_dto.dart';
+import 'package:gym_buddy_app/features/auth/data/dto/profile_response_dto.dart';
 import 'package:gym_buddy_app/features/auth/data/dto/session_dto.dart';
 import 'package:gym_buddy_app/features/auth/data/dto/token_response_dto.dart';
 
@@ -91,6 +92,25 @@ class AuthRemoteDataSource {
       }
 
       return SessionDto.listFromJson(data);
+    } on DioException catch (error) {
+      throw AppFailure(
+        parseApiErrorMessage(error.response?.data) ??
+            _fallbackMessageFor(error),
+      );
+    } on FormatException catch (error) {
+      throw AppFailure(error.message);
+    }
+  }
+
+  Future<ProfileResponseDto> profile() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>('/auth/profile');
+      final data = response.data;
+      if (data == null) {
+        throw const AppFailure('The server returned an empty response.');
+      }
+
+      return ProfileResponseDto.fromJson(data);
     } on DioException catch (error) {
       throw AppFailure(
         parseApiErrorMessage(error.response?.data) ??

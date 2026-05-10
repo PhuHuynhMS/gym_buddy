@@ -13,7 +13,6 @@ import 'package:gym_buddy_app/features/auth/domain/usecases/revoke_session_use_c
 import 'package:gym_buddy_app/features/auth/presentation/brand_mark.dart';
 import 'package:gym_buddy_app/features/auth/presentation/login_form.dart';
 import 'package:gym_buddy_app/features/auth/presentation/register_form.dart';
-import 'package:gym_buddy_app/features/home/home_screen.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({
@@ -23,6 +22,7 @@ class AuthScreen extends StatefulWidget {
     required this.logoutAllUseCase,
     required this.listSessionsUseCase,
     required this.revokeSessionUseCase,
+    required this.onAuthenticated,
     super.key,
   });
 
@@ -32,6 +32,7 @@ class AuthScreen extends StatefulWidget {
   final LogoutAllUseCase logoutAllUseCase;
   final ListSessionsUseCase listSessionsUseCase;
   final RevokeSessionUseCase revokeSessionUseCase;
+  final ValueChanged<AuthUiModel> onAuthenticated;
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -113,17 +114,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
     _showSnackBar(message: auth.message);
     if (auth.nextAction == AuthNextAction.goHome) {
-      await Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(
-          builder: (_) => HomeScreen(
-            auth: auth,
-            logoutUseCase: widget.logoutUseCase,
-            logoutAllUseCase: widget.logoutAllUseCase,
-            listSessionsUseCase: widget.listSessionsUseCase,
-            revokeSessionUseCase: widget.revokeSessionUseCase,
-          ),
-        ),
-      );
+      widget.onAuthenticated(auth);
     }
   }
 

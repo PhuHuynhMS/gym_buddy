@@ -13,6 +13,7 @@ class HomeScreen extends StatelessWidget {
     required this.logoutAllUseCase,
     required this.listSessionsUseCase,
     required this.revokeSessionUseCase,
+    required this.onSignedOut,
     super.key,
   });
 
@@ -21,6 +22,7 @@ class HomeScreen extends StatelessWidget {
   final LogoutAllUseCase logoutAllUseCase;
   final ListSessionsUseCase listSessionsUseCase;
   final RevokeSessionUseCase revokeSessionUseCase;
+  final VoidCallback onSignedOut;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,7 @@ class HomeScreen extends StatelessWidget {
                     logoutAllUseCase: logoutAllUseCase,
                     listSessionsUseCase: listSessionsUseCase,
                     revokeSessionUseCase: revokeSessionUseCase,
+                    onSignedOut: onSignedOut,
                   ),
                 ),
               );
@@ -77,6 +80,7 @@ class SettingsScreen extends StatelessWidget {
     required this.logoutAllUseCase,
     required this.listSessionsUseCase,
     required this.revokeSessionUseCase,
+    required this.onSignedOut,
     super.key,
   });
 
@@ -84,6 +88,7 @@ class SettingsScreen extends StatelessWidget {
   final LogoutAllUseCase logoutAllUseCase;
   final ListSessionsUseCase listSessionsUseCase;
   final RevokeSessionUseCase revokeSessionUseCase;
+  final VoidCallback onSignedOut;
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +108,7 @@ class SettingsScreen extends StatelessWidget {
                     logoutAllUseCase: logoutAllUseCase,
                     listSessionsUseCase: listSessionsUseCase,
                     revokeSessionUseCase: revokeSessionUseCase,
+                    onSignedOut: onSignedOut,
                   ),
                 ),
               );
@@ -115,7 +121,7 @@ class SettingsScreen extends StatelessWidget {
             onTap: () async {
               await logoutUseCase();
               if (context.mounted) {
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                onSignedOut();
               }
             },
           ),
@@ -130,12 +136,14 @@ class SessionsScreen extends StatefulWidget {
     required this.logoutAllUseCase,
     required this.listSessionsUseCase,
     required this.revokeSessionUseCase,
+    required this.onSignedOut,
     super.key,
   });
 
   final LogoutAllUseCase logoutAllUseCase;
   final ListSessionsUseCase listSessionsUseCase;
   final RevokeSessionUseCase revokeSessionUseCase;
+  final VoidCallback onSignedOut;
 
   @override
   State<SessionsScreen> createState() => _SessionsScreenState();
@@ -197,7 +205,7 @@ class _SessionsScreenState extends State<SessionsScreen> {
                     }
                     await widget.logoutAllUseCase();
                     if (context.mounted) {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      widget.onSignedOut();
                     }
                   },
                 );
@@ -235,7 +243,7 @@ class _SessionsScreenState extends State<SessionsScreen> {
 
                     await widget.revokeSessionUseCase(session.id);
                     if (session.isCurrentDevice && context.mounted) {
-                      Navigator.of(context).popUntil((route) => route.isFirst);
+                      widget.onSignedOut();
                     } else {
                       _reload();
                     }

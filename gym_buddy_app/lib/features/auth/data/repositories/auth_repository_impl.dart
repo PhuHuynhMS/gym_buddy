@@ -47,6 +47,12 @@ class AuthRepositoryImpl implements AuthRepository {
     return _mapper.fromAuthResponse(response);
   }
 
+  @override
+  Future<AuthUiModel> profile() async {
+    final response = await _remoteDataSource.profile();
+    return _mapper.fromProfileResponse(response);
+  }
+
   SessionSnapshot _sessionFrom(AuthResponseDto response) {
     return SessionSnapshot(
       accessToken: response.accessToken,
