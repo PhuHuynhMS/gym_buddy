@@ -9,6 +9,7 @@
   "scripts": {
     "start": "tsx server.ts",
     "dev": "tsx watch server.ts",
+    "cert:dev": "powershell -ExecutionPolicy Bypass -File scripts/create-dev-cert.ps1",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
