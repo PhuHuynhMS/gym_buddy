@@ -19,10 +19,14 @@ $caSubject = "CN=GymBuddy Dev CA"
 $serverSubject = "CN=$HostName"
 $now = Get-Date
 $caCertPath = Join-Path $resolvedCertDir "gymbuddy-dev-ca.cer"
+$caCrtPath = Join-Path $resolvedCertDir "gymbuddy-dev-ca.crt"
 $serverPfxPath = Join-Path $resolvedCertDir "server.pfx"
+$appDebugRawCertDir = Join-Path (Get-Location) "../gym_buddy_app/android/app/src/debug/res/raw"
+$appDebugRawCertPath = Join-Path $appDebugRawCertDir "gymbuddy_dev_ca.cer"
 
 $existingCa = Get-ChildItem Cert:\CurrentUser\My |
   Where-Object { $_.Subject -eq $caSubject } |
+  Where-Object { $_.Extensions | Where-Object { $_.Oid.Value -eq "2.5.29.19" } } |
   Sort-Object NotAfter -Descending |
   Select-Object -First 1
 
@@ -35,6 +39,9 @@ if ($null -eq $existingCa) {
     -HashAlgorithm SHA256 `
     -KeyExportPolicy Exportable `
     -KeyUsage CertSign, CRLSign, DigitalSignature `
+    -TextExtension @(
+      "2.5.29.19={critical}{text}ca=1&pathlength=1"
+    ) `
     -CertStoreLocation "Cert:\CurrentUser\My" `
     -NotAfter $now.AddYears(5)
 }
@@ -66,6 +73,10 @@ Export-Certificate `
   -FilePath $caCertPath `
   -Force | Out-Null
 
+Copy-Item -LiteralPath $caCertPath -Destination $caCrtPath -Force
+New-Item -ItemType Directory -Force -Path $appDebugRawCertDir | Out-Null
+Copy-Item -LiteralPath $caCertPath -Destination $appDebugRawCertPath -Force
+
 Export-PfxCertificate `
   -Cert $serverCert `
   -FilePath $serverPfxPath `
@@ -73,6 +84,8 @@ Export-PfxCertificate `
   -Force | Out-Null
 
 Write-Host "Created dev CA: $caCertPath"
+Write-Host "Created Android-friendly CA copy: $caCrtPath"
+Write-Host "Synced debug app CA resource: $appDebugRawCertPath"
 Write-Host "Created server PFX: $serverPfxPath"
 Write-Host ""
 Write-Host "Backend env:"
@@ -83,4 +96,4 @@ Write-Host "`$env:HTTPS_PFX_PATH=`"$CertDir/server.pfx`""
 Write-Host "`$env:HTTPS_PFX_PASSPHRASE=`"$PfxPassword`""
 Write-Host ""
 Write-Host "Install this CA on your Android device:"
-Write-Host $caCertPath
+Write-Host $caCrtPath

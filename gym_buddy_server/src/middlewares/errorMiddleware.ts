@@ -46,6 +46,15 @@ export const errorMiddleware = (
     return;
   }
 
+  if ((err as any).type === "entity.parse.failed") {
+    res.status(400).json({
+      success: false,
+      code: "INVALID_JSON",
+      message: "Request body must be valid JSON.",
+    });
+    return;
+  }
+
   if (err.name === "ValidationError") {
     res.status(400).json({
       success: false,

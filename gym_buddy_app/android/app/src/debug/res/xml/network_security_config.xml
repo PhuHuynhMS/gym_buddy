@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <base-config>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+            <certificates src="@raw/gymbuddy_dev_ca" />
+        </trust-anchors>
+    </base-config>
     <debug-overrides>
         <trust-anchors>
             <certificates src="user" />
+            <certificates src="@raw/gymbuddy_dev_ca" />
         </trust-anchors>
     </debug-overrides>
 </network-security-config>

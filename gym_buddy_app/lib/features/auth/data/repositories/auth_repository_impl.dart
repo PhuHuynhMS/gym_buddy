@@ -1,3 +1,4 @@
+import 'package:gym_buddy_app/core/errors/app_failure.dart';
 import 'package:gym_buddy_app/core/session/secure_session_store.dart';
 import 'package:gym_buddy_app/core/session/session_snapshot.dart';
 import 'package:gym_buddy_app/features/auth/data/datasources/auth_remote_data_source.dart';
@@ -28,7 +29,7 @@ class AuthRepositoryImpl implements AuthRepository {
       email: email,
       password: password,
     );
-    await _sessionStore.save(_sessionFrom(response));
+    await _saveSession(response);
     return _mapper.fromAuthResponse(response);
   }
 
@@ -43,7 +44,7 @@ class AuthRepositoryImpl implements AuthRepository {
       email: email,
       password: password,
     );
-    await _sessionStore.save(_sessionFrom(response));
+    await _saveSession(response);
     return _mapper.fromAuthResponse(response);
   }
 
@@ -59,5 +60,15 @@ class AuthRepositoryImpl implements AuthRepository {
       accessTokenExpiresAt: response.accessTokenExpiresAt,
       sessionId: response.sessionId,
     );
+  }
+
+  Future<void> _saveSession(AuthResponseDto response) async {
+    try {
+      await _sessionStore.save(_sessionFrom(response));
+    } catch (_) {
+      throw const AppFailure(
+        'Account created, but the app could not save your session. Clear app data and try again.',
+      );
+    }
   }
 }

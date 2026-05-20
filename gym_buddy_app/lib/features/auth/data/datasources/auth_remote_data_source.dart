@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:gym_buddy_app/core/device/device_info_provider.dart';
 import 'package:gym_buddy_app/core/errors/app_failure.dart';
 import 'package:gym_buddy_app/core/network/api_error_parser.dart';
@@ -42,8 +43,8 @@ class AuthRemoteDataSource {
     required String path,
     required Map<String, String> body,
   }) async {
-    final headers = await _deviceInfoProvider.authHeaders();
     try {
+      final headers = await _deviceInfoProvider.authHeaders();
       final response = await _dio.post<Map<String, dynamic>>(
         path,
         data: body,
@@ -64,6 +65,10 @@ class AuthRemoteDataSource {
       throw AppFailure(_fallbackMessageFor(error));
     } on FormatException catch (error) {
       throw AppFailure(error.message);
+    } on AppFailure {
+      rethrow;
+    } catch (_) {
+      throw const AppFailure('Unable to prepare device session details.');
     }
   }
 
@@ -162,6 +167,17 @@ class AuthRemoteDataSource {
   }
 
   String _fallbackMessageFor(DioException error) {
+    final underlyingError = error.error?.toString();
+    final underlyingErrorType = error.error.runtimeType.toString();
+
+    if (error.type == DioExceptionType.unknown &&
+        underlyingError != null &&
+        (underlyingError.contains('HandshakeException') ||
+            underlyingError.contains('CertificateException') ||
+            underlyingError.toLowerCase().contains('certificate'))) {
+      return 'The server certificate is not trusted on this device.';
+    }
+
     return switch (error.type) {
       DioExceptionType.connectionTimeout ||
       DioExceptionType.sendTimeout ||
@@ -169,7 +185,11 @@ class AuthRemoteDataSource {
         'The request timed out. Please try again.',
       DioExceptionType.connectionError =>
         'Unable to reach the server. Please check your connection.',
-      _ => 'Something went wrong. Please try again.',
+      DioExceptionType.badCertificate =>
+        'The server certificate is not trusted on this device.',
+      _ => kDebugMode
+          ? 'Network error: ${error.type.name}, status ${error.response?.statusCode ?? 'none'}, ${error.message ?? 'no message'}, underlying $underlyingErrorType: ${underlyingError ?? 'none'}'
+          : 'Something went wrong. Please try again.',
     };
   }
 }

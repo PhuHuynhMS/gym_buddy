@@ -53,8 +53,12 @@ class AuthFormController extends ChangeNotifier {
     } on AppFailure catch (error) {
       _errorMessage = error.message;
       rethrow;
-    } catch (_) {
-      _errorMessage = 'Something went wrong. Please try again.';
+    } catch (error, stackTrace) {
+      debugPrint('Unexpected auth form error: $error');
+      debugPrintStack(stackTrace: stackTrace);
+      _errorMessage = kDebugMode
+          ? 'Unexpected auth error: $error'
+          : 'Something went wrong. Please try again.';
       throw AppFailure(_errorMessage!);
     } finally {
       _isSubmitting = false;
