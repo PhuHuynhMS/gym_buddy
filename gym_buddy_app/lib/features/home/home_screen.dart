@@ -5,8 +5,10 @@ import 'package:gym_buddy_app/features/auth/domain/usecases/list_sessions_use_ca
 import 'package:gym_buddy_app/features/auth/domain/usecases/logout_all_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/logout_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/revoke_session_use_case.dart';
+import 'package:gym_buddy_app/features/location/presentation/location_permission_panel.dart';
+import 'package:gym_buddy_app/features/maps/presentation/map_preview_panel.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({
     required this.auth,
     required this.logoutUseCase,
@@ -25,6 +27,19 @@ class HomeScreen extends StatelessWidget {
   final VoidCallback onSignedOut;
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _mapRefreshKey = 0;
+
+  void _reloadMapPreview() {
+    setState(() {
+      _mapRefreshKey += 1;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -36,11 +51,11 @@ class HomeScreen extends StatelessWidget {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(
                   builder: (_) => SettingsScreen(
-                    logoutUseCase: logoutUseCase,
-                    logoutAllUseCase: logoutAllUseCase,
-                    listSessionsUseCase: listSessionsUseCase,
-                    revokeSessionUseCase: revokeSessionUseCase,
-                    onSignedOut: onSignedOut,
+                    logoutUseCase: widget.logoutUseCase,
+                    logoutAllUseCase: widget.logoutAllUseCase,
+                    listSessionsUseCase: widget.listSessionsUseCase,
+                    revokeSessionUseCase: widget.revokeSessionUseCase,
+                    onSignedOut: widget.onSignedOut,
                   ),
                 ),
               );
@@ -49,26 +64,27 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome, ${auth.displayName}',
-              style: Theme.of(context).textTheme.headlineSmall,
+        children: [
+          Text(
+            'Welcome, ${widget.auth.displayName}',
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            widget.auth.email,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 8),
-            Text(
-              auth.email,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(auth.message),
-          ],
-        ),
+          ),
+          const SizedBox(height: 24),
+          Text(widget.auth.message),
+          const SizedBox(height: 24),
+          LocationPermissionPanel(onPermissionChanged: _reloadMapPreview),
+          const SizedBox(height: 16),
+          MapPreviewPanel(key: ValueKey(_mapRefreshKey)),
+        ],
       ),
     );
   }

@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:gym_buddy_app/core/config/app_config.dart';
+import 'package:gym_buddy_app/core/network/dev_certificate_trust.dart';
 
 class DioClientFactory {
   const DioClientFactory();
 
   Dio create(AppConfig config) {
-    return Dio(
+    final dio = Dio(
       BaseOptions(
         baseUrl: config.apiBaseUrl,
         connectTimeout: const Duration(seconds: 10),
@@ -14,5 +15,9 @@ class DioClientFactory {
         headers: const {'Content-Type': 'application/json'},
       ),
     );
+
+    configureDevCertificateTrust(dio, apiBaseUri: Uri.parse(config.apiBaseUrl));
+
+    return dio;
   }
 }
