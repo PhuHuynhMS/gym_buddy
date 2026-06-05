@@ -2,6 +2,8 @@ import cors from "cors";
 import express from "express";
 import type { Request, Response } from "express";
 import authRoutes from "./routes/auth.routes";
+import gymsRoutes from "./routes/gyms.routes";
+import buddiesRoutes from "./routes/buddies.routes";
 import { errorMiddleware } from "./middlewares/errorMiddleware";
 
 const app = express();
@@ -14,6 +16,8 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/gyms", gymsRoutes);
+app.use("/api/v1/buddies", buddiesRoutes);
 
 app.use(errorMiddleware);
 
