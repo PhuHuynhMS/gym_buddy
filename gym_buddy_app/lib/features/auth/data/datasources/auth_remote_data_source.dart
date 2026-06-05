@@ -187,9 +187,10 @@ class AuthRemoteDataSource {
         'Unable to reach the server. Please check your connection.',
       DioExceptionType.badCertificate =>
         'The server certificate is not trusted on this device.',
-      _ => kDebugMode
-          ? 'Network error: ${error.type.name}, status ${error.response?.statusCode ?? 'none'}, ${error.message ?? 'no message'}, underlying $underlyingErrorType: ${underlyingError ?? 'none'}'
-          : 'Something went wrong. Please try again.',
+      _ =>
+        kDebugMode
+            ? 'Network error: ${error.type.name}, status ${error.response?.statusCode ?? 'none'}, ${error.message ?? 'no message'}, underlying $underlyingErrorType: ${underlyingError ?? 'none'}'
+            : 'Something went wrong. Please try again.',
     };
   }
 }
