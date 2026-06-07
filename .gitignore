@@ -2,5 +2,4 @@
 .agents/plugins/
 plugins/
 .tmp/
-docs/
-pr_test_server/
+pr_test_server/.superpowers/
