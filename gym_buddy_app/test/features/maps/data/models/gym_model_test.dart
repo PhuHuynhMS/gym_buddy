@@ -47,4 +47,14 @@ void main() {
     };
     expect(() => GymModel.fromJson(json), throwsA(isA<FormatException>()));
   });
+
+  test('fromJson throws FormatException when distanceKm is missing', () {
+    final json = Map<String, dynamic>.from(validJson)..remove('distanceKm');
+    expect(() => GymModel.fromJson(json), throwsA(isA<FormatException>()));
+  });
+
+  test('fromJson throws FormatException when name is empty string', () {
+    final json = {...validJson, 'name': ''};
+    expect(() => GymModel.fromJson(json), throwsA(isA<FormatException>()));
+  });
 }
