@@ -51,6 +51,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _load() async {
+    if (_isLoading) return;
     setState(() {
       _isLoading = true;
       _statusMessage = 'Loading map...';
@@ -81,25 +82,18 @@ class _MapScreenState extends State<MapScreen> {
 
       String? errorMessage;
 
-      final results = await Future.wait([
-        widget.gymRepository
-            .getNearby(lat: lat, lng: lng)
-            .catchError((_) {
+      final (gyms, buddies) = await (
+        widget.gymRepository.getNearby(lat: lat, lng: lng).catchError((_) {
           errorMessage = 'Gyms unavailable.';
           return <GymModel>[];
         }),
-        widget.buddyRepository
-            .getNearby(lat: lat, lng: lng)
-            .catchError((_) {
+        widget.buddyRepository.getNearby(lat: lat, lng: lng).catchError((_) {
           errorMessage = errorMessage != null
               ? 'Gyms and buddies unavailable.'
               : 'Buddies unavailable.';
           return <BuddyAvailabilityModel>[];
         }),
-      ]);
-
-      final gyms = results[0] as List<GymModel>;
-      final buddies = results[1] as List<BuddyAvailabilityModel>;
+      ).wait;
 
       if (!mounted) return;
       setState(() {
@@ -256,7 +250,7 @@ class _StatusBar extends StatelessWidget {
             ),
             IconButton(
               tooltip: 'Refresh map',
-              onPressed: onRefresh,
+              onPressed: isLoading ? null : onRefresh,
               icon: const Icon(Icons.refresh),
             ),
           ],
