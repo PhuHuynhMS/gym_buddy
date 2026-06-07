@@ -1,7 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_buddy_app/app/gym_buddy_app.dart';
 import 'package:gym_buddy_app/core/session/secure_session_store.dart';
+import 'package:gym_buddy_app/features/maps/data/buddy_repository.dart';
+import 'package:gym_buddy_app/features/maps/data/gym_repository.dart';
+import 'package:gym_buddy_app/features/maps/data/models/buddy_availability_model.dart';
+import 'package:gym_buddy_app/features/maps/data/models/gym_model.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_next_action.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_session_ui_model.dart';
 import 'package:gym_buddy_app/features/auth/domain/entities/auth_ui_model.dart';
@@ -30,6 +35,8 @@ Future<void> pumpAuthApp(WidgetTester tester) async {
       logoutAllUseCase: LogoutAllUseCase(sessionRepository),
       listSessionsUseCase: ListSessionsUseCase(sessionRepository),
       revokeSessionUseCase: RevokeSessionUseCase(sessionRepository),
+      gymRepository: _FakeGymRepository(),
+      buddyRepository: _FakeBuddyRepository(),
     ),
   );
   await tester.pumpAndSettle();
@@ -98,7 +105,10 @@ void main() {
     final loginButton = find.byKey(const Key('login-submit-button'));
     await tester.ensureVisible(loginButton);
     await tester.tap(loginButton);
-    await tester.pumpAndSettle();
+    // Use pump(Duration) instead of pumpAndSettle because MapPreviewPanel's
+    // TileLayer keeps the animation loop running indefinitely in tests.
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.text('Welcome, Test User'), findsOneWidget);
     expect(find.text('tester@example.com'), findsOneWidget);
@@ -146,12 +156,39 @@ void main() {
     await tester.pump();
     await tester.ensureVisible(registerButton);
     await tester.tap(registerButton);
-    await tester.pumpAndSettle();
+    // Use pump(Duration) instead of pumpAndSettle because MapPreviewPanel's
+    // TileLayer keeps the animation loop running indefinitely in tests.
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(find.text('Welcome, linh'), findsOneWidget);
     expect(find.text('linh@example.com'), findsOneWidget);
     expect(find.text('Register successful'), findsWidgets);
   });
+}
+
+class _FakeGymRepository extends GymRepository {
+  _FakeGymRepository() : super(Dio());
+
+  @override
+  Future<List<GymModel>> getNearby({
+    required double lat,
+    required double lng,
+    double radiusKm = 5.0,
+    int limit = 20,
+  }) async => const [];
+}
+
+class _FakeBuddyRepository extends BuddyRepository {
+  _FakeBuddyRepository() : super(Dio());
+
+  @override
+  Future<List<BuddyAvailabilityModel>> getNearby({
+    required double lat,
+    required double lng,
+    double radiusKm = 5.0,
+    int limit = 20,
+  }) async => const [];
 }
 
 class _FakeAuthRepository implements AuthRepository {

@@ -9,6 +9,8 @@ import 'package:gym_buddy_app/features/auth/domain/usecases/register_use_case.da
 import 'package:gym_buddy_app/features/auth/domain/usecases/revoke_session_use_case.dart';
 import 'package:gym_buddy_app/features/auth/presentation/auth_screen.dart';
 import 'package:gym_buddy_app/features/home/home_screen.dart';
+import 'package:gym_buddy_app/features/maps/data/buddy_repository.dart';
+import 'package:gym_buddy_app/features/maps/data/gym_repository.dart';
 
 class BootstrapGate extends StatefulWidget {
   const BootstrapGate({
@@ -19,6 +21,8 @@ class BootstrapGate extends StatefulWidget {
     required this.logoutAllUseCase,
     required this.listSessionsUseCase,
     required this.revokeSessionUseCase,
+    required this.gymRepository,
+    required this.buddyRepository,
     super.key,
   });
 
@@ -29,6 +33,8 @@ class BootstrapGate extends StatefulWidget {
   final LogoutAllUseCase logoutAllUseCase;
   final ListSessionsUseCase listSessionsUseCase;
   final RevokeSessionUseCase revokeSessionUseCase;
+  final GymRepository gymRepository;
+  final BuddyRepository buddyRepository;
 
   @override
   State<BootstrapGate> createState() => _BootstrapGateState();
@@ -113,6 +119,8 @@ class _BootstrapGateState extends State<BootstrapGate> {
       logoutAllUseCase: widget.logoutAllUseCase,
       listSessionsUseCase: widget.listSessionsUseCase,
       revokeSessionUseCase: widget.revokeSessionUseCase,
+      gymRepository: widget.gymRepository,
+      buddyRepository: widget.buddyRepository,
       onSignedOut: _setUnauthenticated,
     );
   }

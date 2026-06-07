@@ -6,7 +6,10 @@ import 'package:gym_buddy_app/features/auth/domain/usecases/logout_all_use_case.
 import 'package:gym_buddy_app/features/auth/domain/usecases/logout_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/revoke_session_use_case.dart';
 import 'package:gym_buddy_app/features/location/presentation/location_permission_panel.dart';
+import 'package:gym_buddy_app/features/maps/data/buddy_repository.dart';
+import 'package:gym_buddy_app/features/maps/data/gym_repository.dart';
 import 'package:gym_buddy_app/features/maps/presentation/map_preview_panel.dart';
+import 'package:gym_buddy_app/features/maps/presentation/map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -15,6 +18,8 @@ class HomeScreen extends StatefulWidget {
     required this.logoutAllUseCase,
     required this.listSessionsUseCase,
     required this.revokeSessionUseCase,
+    required this.gymRepository,
+    required this.buddyRepository,
     required this.onSignedOut,
     super.key,
   });
@@ -24,6 +29,8 @@ class HomeScreen extends StatefulWidget {
   final LogoutAllUseCase logoutAllUseCase;
   final ListSessionsUseCase listSessionsUseCase;
   final RevokeSessionUseCase revokeSessionUseCase;
+  final GymRepository gymRepository;
+  final BuddyRepository buddyRepository;
   final VoidCallback onSignedOut;
 
   @override
@@ -32,6 +39,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _mapRefreshKey = 0;
+  int _selectedTab = 0;
 
   void _reloadMapPreview() {
     setState(() {
@@ -64,28 +72,55 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Text(
-            'Welcome, ${widget.auth.displayName}',
-            style: Theme.of(context).textTheme.headlineSmall,
+      body: _selectedTab == 0 ? _buildHomeTab() : _buildMapTab(),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedTab,
+        onDestinationSelected: (i) => setState(() => _selectedTab = i),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
           ),
-          const SizedBox(height: 8),
-          Text(
-            widget.auth.email,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+          NavigationDestination(
+            icon: Icon(Icons.map_outlined),
+            selectedIcon: Icon(Icons.map),
+            label: 'Map',
           ),
-          const SizedBox(height: 24),
-          Text(widget.auth.message),
-          const SizedBox(height: 24),
-          LocationPermissionPanel(onPermissionChanged: _reloadMapPreview),
-          const SizedBox(height: 16),
-          MapPreviewPanel(key: ValueKey(_mapRefreshKey)),
         ],
       ),
+    );
+  }
+
+  Widget _buildHomeTab() {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        Text(
+          'Welcome, ${widget.auth.displayName}',
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          widget.auth.email,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text(widget.auth.message),
+        const SizedBox(height: 24),
+        LocationPermissionPanel(onPermissionChanged: _reloadMapPreview),
+        const SizedBox(height: 16),
+        MapPreviewPanel(key: ValueKey(_mapRefreshKey)),
+      ],
+    );
+  }
+
+  Widget _buildMapTab() {
+    return MapScreen(
+      gymRepository: widget.gymRepository,
+      buddyRepository: widget.buddyRepository,
     );
   }
 }

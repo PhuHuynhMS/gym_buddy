@@ -8,6 +8,8 @@ import 'package:gym_buddy_app/features/auth/domain/usecases/logout_all_use_case.
 import 'package:gym_buddy_app/features/auth/domain/usecases/logout_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/register_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/revoke_session_use_case.dart';
+import 'package:gym_buddy_app/features/maps/data/buddy_repository.dart';
+import 'package:gym_buddy_app/features/maps/data/gym_repository.dart';
 
 class GymBuddyApp extends StatelessWidget {
   const GymBuddyApp({
@@ -18,6 +20,8 @@ class GymBuddyApp extends StatelessWidget {
     required this.logoutAllUseCase,
     required this.listSessionsUseCase,
     required this.revokeSessionUseCase,
+    required this.gymRepository,
+    required this.buddyRepository,
     super.key,
   });
 
@@ -28,6 +32,8 @@ class GymBuddyApp extends StatelessWidget {
   final LogoutAllUseCase logoutAllUseCase;
   final ListSessionsUseCase listSessionsUseCase;
   final RevokeSessionUseCase revokeSessionUseCase;
+  final GymRepository gymRepository;
+  final BuddyRepository buddyRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +49,8 @@ class GymBuddyApp extends StatelessWidget {
         logoutAllUseCase: logoutAllUseCase,
         listSessionsUseCase: listSessionsUseCase,
         revokeSessionUseCase: revokeSessionUseCase,
+        gymRepository: gymRepository,
+        buddyRepository: buddyRepository,
       ),
     );
   }

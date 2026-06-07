@@ -19,6 +19,8 @@ import 'package:gym_buddy_app/features/auth/domain/usecases/logout_all_use_case.
 import 'package:gym_buddy_app/features/auth/domain/usecases/logout_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/register_use_case.dart';
 import 'package:gym_buddy_app/features/auth/domain/usecases/revoke_session_use_case.dart';
+import 'package:gym_buddy_app/features/maps/data/buddy_repository.dart';
+import 'package:gym_buddy_app/features/maps/data/gym_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,6 +66,8 @@ Future<void> main() async {
       logoutAllUseCase: LogoutAllUseCase(sessionRepository),
       listSessionsUseCase: ListSessionsUseCase(sessionRepository),
       revokeSessionUseCase: RevokeSessionUseCase(sessionRepository),
+      gymRepository: GymRepository(dio),
+      buddyRepository: BuddyRepository(dio),
     ),
   );
 }
