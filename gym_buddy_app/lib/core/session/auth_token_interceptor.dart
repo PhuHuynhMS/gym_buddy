@@ -20,7 +20,18 @@ class AuthTokenInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final session = await _sessionStore.read();
+    var session = await _sessionStore.read();
+
+    final isRefreshRequest = options.path.contains('/auth/refresh');
+    if (session != null && session.isExpired && !isRefreshRequest) {
+      try {
+        await _refreshOnce();
+        session = await _sessionStore.read();
+      } catch (_) {
+        session = null;
+      }
+    }
+
     if (session != null && !session.isExpired) {
       options.headers['Authorization'] = 'Bearer ${session.accessToken}';
     }
