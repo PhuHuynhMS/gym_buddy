@@ -7,7 +7,9 @@ import 'package:gym_buddy_app/features/maps/data/buddy_repository.dart';
 import 'package:gym_buddy_app/features/maps/data/gym_repository.dart';
 import 'package:gym_buddy_app/features/maps/data/models/buddy_availability_model.dart';
 import 'package:gym_buddy_app/features/maps/data/models/gym_model.dart';
+import 'package:gym_buddy_app/features/maps/presentation/widgets/buddy_detail_sheet.dart';
 import 'package:gym_buddy_app/features/maps/presentation/widgets/buddy_marker.dart';
+import 'package:gym_buddy_app/features/maps/presentation/widgets/gym_detail_sheet.dart';
 import 'package:gym_buddy_app/features/maps/presentation/widgets/gym_marker.dart';
 import 'package:gym_buddy_app/features/maps/presentation/widgets/map_filter_chips.dart';
 import 'package:latlong2/latlong.dart';
@@ -120,6 +122,20 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  void _onGymTap(GymModel gym) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (_) => GymDetailSheet(gym: gym),
+    );
+  }
+
+  void _onBuddyTap(BuddyAvailabilityModel buddy) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (_) => BuddyDetailSheet(buddy: buddy),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
@@ -146,7 +162,10 @@ class _MapScreenState extends State<MapScreen> {
                         point: LatLng(gym.lat, gym.lng),
                         width: 50,
                         height: 50,
-                        child: const GymMarker(),
+                        child: GestureDetector(
+                          onTap: () => _onGymTap(gym),
+                          child: const GymMarker(),
+                        ),
                       ),
                     )
                     .toList(),
@@ -159,7 +178,10 @@ class _MapScreenState extends State<MapScreen> {
                         point: LatLng(buddy.lat, buddy.lng),
                         width: 50,
                         height: 50,
-                        child: const BuddyMarker(),
+                        child: GestureDetector(
+                          onTap: () => _onBuddyTap(buddy),
+                          child: const BuddyMarker(),
+                        ),
                       ),
                     )
                     .toList(),
