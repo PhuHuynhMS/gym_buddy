@@ -3,9 +3,6 @@ import 'package:gym_buddy_app/features/maps/data/models/buddy_availability_model
 import 'package:gym_buddy_app/features/maps/presentation/widgets/gym_detail_sheet.dart'
     show DragHandle;
 
-export 'package:gym_buddy_app/features/maps/presentation/widgets/gym_detail_sheet.dart'
-    show DragHandle;
-
 class BuddyDetailSheet extends StatelessWidget {
   const BuddyDetailSheet({required this.buddy, super.key});
 
@@ -50,17 +47,10 @@ class BuddyDetailSheet extends StatelessWidget {
             message: 'Coming soon',
             child: SizedBox(
               width: double.infinity,
-              child: FilledButton(
+              child: FilledButton.icon(
                 onPressed: null,
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.person_add),
-                    SizedBox(width: 8),
-                    Text('Send Match Request'),
-                  ],
-                ),
+                icon: const Icon(Icons.person_add),
+                label: const Text('Send Match Request'),
               ),
             ),
           ),

@@ -31,12 +31,20 @@ class GymDetailSheet extends StatelessWidget {
   final GymModel gym;
   final VoidCallback? onGetDirections;
 
-  Future<void> _launchDirections() async {
+  Future<void> _launchDirections(BuildContext context) async {
     final uri = Uri(
       scheme: 'geo',
       path: '${gym.lat},${gym.lng}',
       queryParameters: {'q': gym.name},
     );
+    if (!await canLaunchUrl(uri)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No maps app found')),
+        );
+      }
+      return;
+    }
     await launchUrl(uri);
   }
 
@@ -72,7 +80,7 @@ class GymDetailSheet extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed: onGetDirections ?? _launchDirections,
+              onPressed: onGetDirections ?? () => _launchDirections(context),
               icon: const Icon(Icons.directions),
               label: const Text('Get Directions'),
             ),

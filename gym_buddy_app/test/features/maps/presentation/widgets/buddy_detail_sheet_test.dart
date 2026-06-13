@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_buddy_app/features/maps/data/models/buddy_availability_model.dart';
 import 'package:gym_buddy_app/features/maps/presentation/widgets/buddy_detail_sheet.dart';
+import 'package:gym_buddy_app/features/maps/presentation/widgets/gym_detail_sheet.dart'
+    show DragHandle;
 
 BuddyAvailabilityModel _buddy() => BuddyAvailabilityModel(
       id: 'b1',
@@ -41,7 +43,12 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(body: BuddyDetailSheet(buddy: _buddy())),
       ));
-      final button = tester.widget<FilledButton>(find.byType(FilledButton));
+      final button = tester.widget<ButtonStyleButton>(
+        find.ancestor(
+          of: find.text('Send Match Request'),
+          matching: find.bySubtype<ButtonStyleButton>(),
+        ),
+      );
       expect(button.onPressed, isNull);
     });
 
@@ -49,7 +56,7 @@ void main() {
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(body: BuddyDetailSheet(buddy: _buddy())),
       ));
-      await tester.longPress(find.byType(FilledButton));
+      await tester.longPress(find.text('Send Match Request'));
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text('Coming soon'), findsOneWidget);
     });
